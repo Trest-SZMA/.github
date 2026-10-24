@@ -5,6 +5,7 @@
 | Файл | Зачем |
 |---|---|
 | `.github/workflows/pr-check.yml` | запускает общую проверку PR |
+| `.github/workflows/vetka-zadachi.yml` | создаёт ветку задачи при назначении issue; работает из `main` |
 | `.github/CODEOWNERS` | владелец репозитория — рецензент каждого PR |
 | `.gitattributes` | `.xlsx` и `.pbix` — двоичные, git не пытается их сливать |
 | `AGENTS.md`, `CLAUDE.md` | правила для AI-агентов |

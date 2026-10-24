@@ -4,7 +4,7 @@
 Claude Code читает его через строку `@AGENTS.md` в `CLAUDE.md`. Регламент целиком:
 https://github.com/Trest-SZMA/.github/blob/main/CONTRIBUTING.md
 
-- Ветки: `main` и `Development` — только владелец. Работа — в ветке задачи `<№ issue>-<кратко>` от `Development`.
+- Ветки: `main` и `Development` — только владелец. Работа — в ветке задачи `<№ issue>-<кратко>` от `Development`. GitHub создаёт её сам при назначении issue (имя — в комментарии к issue); новую не создавать, если такая уже есть.
 - Не делать: push в `main`/`Development`, force-push, `--no-verify`, rebase и reset общих веток, слияние PR, удаление веток на GitHub.
 - Перед работой: `git fetch`; если `Development` ушёл вперёд — `git merge origin/Development` в ветку задачи.
 - Перед PR: пройти `ПРОВЕРКА.md`, таблицу «пункт — результат — число» вставить в PR; PR — в `Development`, `Closes #N`.
