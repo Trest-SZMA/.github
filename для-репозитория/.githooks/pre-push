@@ -1,0 +1,29 @@
+#!/bin/sh
+# Хук git регламента Trest-SZMA, раздел 8: не пускает push в main и Development,
+# force-push и удаление веток на GitHub. Действует на всех — людей и любых агентов.
+# Включается один раз в каждой копии репозитория: git config core.hooksPath .githooks
+# Владелец выравнивает Development по main с --no-verify; остальным --no-verify запрещён.
+
+zero=0000000000000000000000000000000000000000
+rc=0
+while read -r local_ref local_sha remote_ref remote_sha; do
+    branch=${remote_ref#refs/heads/}
+    case "$branch" in
+        main|Development)
+            echo "ЗАБЛОКИРОВАНО регламентом Trest-SZMA: push в $branch — пишет только владелец. Работа — в ветке задачи и PR в Development." >&2
+            rc=1; continue ;;
+    esac
+    case "$local_sha" in
+        *[!0]*) ;;
+        *) echo "ЗАБЛОКИРОВАНО регламентом Trest-SZMA: удаление ветки $branch на GitHub — только владелец." >&2
+           rc=1; continue ;;
+    esac
+    case "$remote_sha" in
+        *[!0]*)
+            if ! git merge-base --is-ancestor "$remote_sha" "$local_sha" 2>/dev/null; then
+                echo "ЗАБЛОКИРОВАНО регламентом Trest-SZMA: push в $branch перезаписал бы чужие коммиты (force-push). Сначала git fetch и git merge." >&2
+                rc=1
+            fi ;;
+    esac
+done
+exit $rc

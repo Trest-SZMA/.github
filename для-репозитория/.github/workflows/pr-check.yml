@@ -1,0 +1,11 @@
+# Кладётся в репозиторий как .github/workflows/pr-check.yml.
+# Сама проверка — в Trest-SZMA/.github, правится там один раз для всех репозиториев.
+name: pr-check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  check:
+    uses: Trest-SZMA/.github/.github/workflows/pr-check.yml@main

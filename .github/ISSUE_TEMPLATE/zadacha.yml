@@ -1,0 +1,31 @@
+name: Задача
+description: Одна задача — одна ветка — один PR в Development
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: Что сделать
+      description: Результат, по которому будет понятно, что задача выполнена.
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: Затронутые файлы и разделы
+      description: Модель, страницы отчёта, скрипты, листы — чтобы коллеги видели пересечения.
+  - type: input
+    id: parent
+    attributes:
+      label: Родительская задача
+      description: Если это часть большой задачи — номер родительской issue. Удобнее создать эту issue кнопкой Create sub-issue в родителе.
+      placeholder: "#40"
+  - type: input
+    id: xlsx
+    attributes:
+      label: Бронь .xlsx
+      description: Путь к Excel-книге, которую будете править. Пока issue открыта, книгу правите только вы. Нет — оставьте пустым.
+      placeholder: Отчёты/План.xlsx
+  - type: markdown
+    attributes:
+      value: |
+        После создания — назначьте issue на себя (Assignees). Ветка: `<номер>-<кратко>` от `Development`.

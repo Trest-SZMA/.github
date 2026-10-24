@@ -1,0 +1,57 @@
+# Общая проверка PR по регламенту Trest-SZMA (CONTRIBUTING.md, раздел 6).
+# Вызывается из репозиториев workflow-ом pr-check.yml (образец — workflows/vyzov.yml).
+name: pr-check
+
+on:
+  workflow_call:
+    inputs:
+      max-mb:
+        description: Предел размера файла, МБ
+        type: number
+        default: 10
+
+permissions:
+  contents: read
+
+jobs:
+  regulation:
+    name: Регламент
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          repository: Trest-SZMA/.github
+          path: .regulation
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Направление, .pbix, конфликты, PBIP
+        run: >
+          python .regulation/scripts/pr_check.py
+          --base "${{ github.base_ref }}"
+          --head "${{ github.head_ref }}"
+          --base-sha "${{ github.event.pull_request.base.sha }}"
+          --max-mb "${{ inputs.max-mb }}"
+
+  pytest:
+    name: Тесты Python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: detect
+        name: Есть ли тесты
+        run: |
+          if ls tests/ test_*.py */test_*.py >/dev/null 2>&1; then echo "has=true" >> "$GITHUB_OUTPUT"; else echo "has=false" >> "$GITHUB_OUTPUT"; echo "Тестов нет — пропуск."; fi
+      - if: steps.detect.outputs.has == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - if: steps.detect.outputs.has == 'true'
+        name: pytest
+        run: |
+          python -m pip install -q pytest
+          if [ -f requirements.txt ]; then python -m pip install -q -r requirements.txt; fi
+          python -m pytest -q
