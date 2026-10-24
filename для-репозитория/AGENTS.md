@@ -9,4 +9,5 @@ https://github.com/Trest-SZMA/.github/blob/main/CONTRIBUTING.md
 - Перед работой: `git fetch`; если `Development` ушёл вперёд — `git merge origin/Development` в ветку задачи.
 - Перед PR: пройти `ПРОВЕРКА.md`, таблицу «пункт — результат — число» вставить в PR; PR — в `Development`, `Closes #N`.
 - `.pbix` не добавлять (только PBIP); `.xlsx` — только если в issue стоит бронь этого файла.
+- Ветки на GitHub удаляет человек кнопкой на сайте; агент только напоминает об этом.
 - Push отклонён хуком `pre-push` — не обходить, а сообщить человеку, что именно нужно сделать.

@@ -15,7 +15,7 @@ while read -r local_ref local_sha remote_ref remote_sha; do
     esac
     case "$local_sha" in
         *[!0]*) ;;
-        *) echo "ЗАБЛОКИРОВАНО регламентом Trest-SZMA: удаление ветки $branch на GitHub — только владелец." >&2
+        *) echo "ЗАБЛОКИРОВАНО регламентом Trest-SZMA: удаление ветки $branch из git. Ветку удаляют кнопкой Delete branch на странице PR или в списке веток на GitHub (регламент, раздел 2)." >&2
            rc=1; continue ;;
     esac
     case "$remote_sha" in
