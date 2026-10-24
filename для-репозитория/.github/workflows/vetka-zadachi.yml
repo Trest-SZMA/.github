@@ -1,0 +1,15 @@
+# Кладётся в репозиторий как .github/workflows/vetka-zadachi.yml.
+# Сама логика — в Trest-SZMA/.github, правится там один раз для всех репозиториев.
+# Срабатывает из ветки по умолчанию (main): после подключения нужен перенос в main.
+name: vetka-zadachi
+
+on:
+  issues:
+    types: [assigned]
+
+jobs:
+  branch:
+    permissions:
+      contents: write
+      issues: write
+    uses: Trest-SZMA/.github/.github/workflows/vetka-zadachi.yml@main
