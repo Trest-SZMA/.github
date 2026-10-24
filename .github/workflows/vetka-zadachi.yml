@@ -32,6 +32,25 @@ jobs:
             try { dev = await github.rest.git.getRef({ owner, repo, ref: 'heads/Development' }); }
             catch { return core.info('Ветки Development нет — регламент в репозитории не подключён.'); }
 
+            // Большая задача: у родителя ветку не создаём; подзадача ответвляется от общей ветки,
+            // если в родительской issue записано «Общая ветка: `40-…`» (регламент, раздел 3)
+            const rel = (await github.graphql(
+              `query($o:String!,$r:String!,$n:Int!){repository(owner:$o,name:$r){issue(number:$n){
+                 subIssuesSummary{total} parent{number body comments(last:50){nodes{body}}}}}}`,
+              { o: owner, r: repo, n })).repository.issue;
+            if (rel.subIssuesSummary.total) return core.info('Родительская issue — ветки только у подзадач.');
+            let base = 'Development', sha = dev.data.object.sha;
+            if (rel.parent) {
+              const texts = [rel.parent.body || '', ...rel.parent.comments.nodes.map(c => c.body)];
+              const m = texts.map(s => s.match(/Общая ветка:\s*`?([A-Za-z0-9._\/-]+)`?/)).find(Boolean);
+              if (m) {
+                try {
+                  sha = (await github.rest.git.getRef({ owner, repo, ref: `heads/${m[1]}` })).data.object.sha;
+                  base = m[1];
+                } catch { core.warning(`Общая ветка ${m[1]} не найдена — ветка от Development.`); }
+              }
+            }
+
             const map = { а:'a', б:'b', в:'v', г:'g', д:'d', е:'e', ё:'e', ж:'zh', з:'z', и:'i', й:'y', к:'k', л:'l',
               м:'m', н:'n', о:'o', п:'p', р:'r', с:'s', т:'t', у:'u', ф:'f', х:'kh', ц:'ts', ч:'ch', ш:'sh', щ:'shch',
               ъ:'', ы:'y', ь:'', э:'e', ю:'yu', я:'ya' };
@@ -47,18 +66,18 @@ jobs:
                 { o: owner, r: repo, n });
               await github.graphql(
                 `mutation($i:ID!,$r:ID!,$oid:GitObjectID!,$name:String!){createLinkedBranch(input:{issueId:$i,repositoryId:$r,oid:$oid,name:$name}){linkedBranch{id}}}`,
-                { i: ids.repository.issue.id, r: ids.repository.id, oid: dev.data.object.sha, name: `refs/heads/${name}` });
+                { i: ids.repository.issue.id, r: ids.repository.id, oid: sha, name: `refs/heads/${name}` });
             } catch (e) {
               core.warning(`Привязка не удалась (${e.message}) — создаю ветку без привязки.`);
-              await github.rest.git.createRef({ owner, repo, ref: `refs/heads/${name}`, sha: dev.data.object.sha });
+              await github.rest.git.createRef({ owner, repo, ref: `refs/heads/${name}`, sha });
             }
 
             await github.rest.issues.createComment({ owner, repo, issue_number: n, body: [
-              `Ветка задачи создана от \`Development\`: **\`${name}\`**`,
+              `Ветка задачи создана от \`${base}\`: **\`${name}\`**`,
               '',
               `- **VS Code:** Source Control → «…» → Fetch, затем имя ветки внизу слева → \`origin/${name}\`.`,
               `- **Терминал:** \`git fetch\` и \`git switch ${name}\`.`,
               '',
               'Дальше — памятка, шаг 3. Регламент: https://github.com/Trest-SZMA/.github/blob/main/ПАМЯТКА.md',
             ].join('\n') });
-            core.info(`Создана ветка ${name}`);
+            core.info(`Создана ветка ${name} от ${base}`);
